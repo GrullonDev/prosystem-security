@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initServiceCardTilt();
   initSmoothScroll();
+  initCounterAnimation();
 });
 
 /* ---------- Preloader ---------- */
@@ -99,17 +100,15 @@ function initMobileMenu() {
 /* ---------- Scroll Animations ---------- */
 function initScrollAnimations() {
   const elements = document.querySelectorAll(
-    '.service-card, .contact-item, .contact-form-wrapper'
+    '.service-card, .process-step, .about-value, .about-stat-card, .contact-item, .contact-form-wrapper'
   );
 
   elements.forEach(el => el.classList.add('fade-in'));
 
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible');
-        }, index * 60);
+        entry.target.classList.add('visible');
         observer.unobserve(entry.target);
       }
     });
@@ -118,7 +117,10 @@ function initScrollAnimations() {
     rootMargin: '0px 0px -40px 0px'
   });
 
-  elements.forEach(el => observer.observe(el));
+  elements.forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 6) * 0.08}s`;
+    observer.observe(el);
+  });
 }
 
 /* ---------- Active Nav Link on Scroll ---------- */
@@ -265,6 +267,41 @@ function initContactForm() {
     note.textContent = 'Se abrió tu cliente de correo con tu solicitud lista para enviar.';
     note.classList.add('success');
   });
+}
+
+/* ---------- Counter Animation ---------- */
+function initCounterAnimation() {
+  const counters = document.querySelectorAll('.trust-number[data-target]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(counter => observer.observe(counter));
+}
+
+function animateCounter(element) {
+  const target = parseInt(element.getAttribute('data-target'));
+  const duration = 2000;
+  const increment = target / (duration / 16);
+  let current = 0;
+
+  function updateCounter() {
+    current += increment;
+    if (current < target) {
+      element.textContent = Math.floor(current);
+      requestAnimationFrame(updateCounter);
+    } else {
+      element.textContent = target;
+    }
+  }
+
+  requestAnimationFrame(updateCounter);
 }
 
 /* ---------- Smooth Scroll for Anchor Links ---------- */
