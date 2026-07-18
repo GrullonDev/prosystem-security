@@ -100,7 +100,7 @@ function initMobileMenu() {
 /* ---------- Scroll Animations ---------- */
 function initScrollAnimations() {
   const elements = document.querySelectorAll(
-    '.service-card, .process-step, .about-value, .about-stat-card, .contact-item, .contact-form-wrapper'
+    '.service-card, .process-step, .about-value, .about-stat-card, .project-card, .testimonial-card, .contact-item, .contact-form-wrapper, .cta-card'
   );
 
   elements.forEach(el => el.classList.add('fade-in'));
