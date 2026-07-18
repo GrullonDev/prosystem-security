@@ -2,7 +2,7 @@
    Pro System Security - JavaScript
    ======================================== */
 
-const CONTACT_EMAIL = 'info@prosystem_security.com';
+const CONTACT_EMAIL = 'info@prosystem-security.com';
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
