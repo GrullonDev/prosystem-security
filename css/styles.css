@@ -60,6 +60,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.loading {
+  overflow: hidden;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -162,6 +166,65 @@ img {
   font-size: 1.1rem;
   color: var(--gray-400);
   line-height: 1.7;
+}
+
+/* ========================================
+   Preloader
+   ======================================== */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: preloaderPulse 1.5s ease-in-out infinite;
+}
+
+.preloader-text {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gray-300);
+}
+
+@keyframes preloaderPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.96); }
+}
+
+/* ========================================
+   Mobile Backdrop
+   ======================================== */
+.mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 11, 23, 0.7);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.mobile-backdrop.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ========================================
@@ -1066,6 +1129,7 @@ a.contact-item:hover {
     gap: 4px;
     transition: right 0.3s ease;
     z-index: 999;
+    overflow-y: auto;
   }
 
   .nav-menu.open {

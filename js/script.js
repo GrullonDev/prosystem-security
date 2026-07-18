@@ -5,6 +5,7 @@
 const CONTACT_EMAIL = 'info@prosystem-security.com';
 
 document.addEventListener('DOMContentLoaded', () => {
+  initPreloader();
   initNavbar();
   initMobileMenu();
   initScrollAnimations();
@@ -13,6 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initServiceCardTilt();
   initSmoothScroll();
 });
+
+/* ---------- Preloader ---------- */
+function initPreloader() {
+  const preloader = document.getElementById('preloader');
+  if (!preloader) return;
+
+  document.body.classList.add('loading');
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      document.body.classList.remove('loading');
+    }, 600);
+  });
+
+  setTimeout(() => {
+    preloader.classList.add('hidden');
+    document.body.classList.remove('loading');
+  }, 3000);
+}
 
 /* ---------- Navbar Scroll Effect ---------- */
 function initNavbar() {
@@ -31,24 +52,46 @@ function initNavbar() {
 function initMobileMenu() {
   const navToggle = document.getElementById('navToggle');
   const navMenu = document.getElementById('navMenu');
+  const backdrop = document.getElementById('mobileBackdrop');
   const navLinks = navMenu.querySelectorAll('.nav-link');
 
+  function openMenu() {
+    navMenu.classList.add('open');
+    navToggle.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    navMenu.classList.remove('open');
+    navToggle.classList.remove('active');
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
   navToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('open');
-    navToggle.classList.toggle('active');
+    if (navMenu.classList.contains('open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   });
 
+  backdrop.addEventListener('click', closeMenu);
+
   navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('open');
-      navToggle.classList.remove('active');
-    });
+    link.addEventListener('click', closeMenu);
   });
 
   document.addEventListener('click', (e) => {
-    if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
-      navMenu.classList.remove('open');
-      navToggle.classList.remove('active');
+    if (!navMenu.contains(e.target) && !navToggle.contains(e.target) && !backdrop.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && navMenu.classList.contains('open')) {
+      closeMenu();
     }
   });
 }
