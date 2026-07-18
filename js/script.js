@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initServiceCardTilt();
   initSmoothScroll();
+  initBackToTop();
+  initFAQ();
   initCounterAnimation();
 });
 
@@ -100,7 +102,7 @@ function initMobileMenu() {
 /* ---------- Scroll Animations ---------- */
 function initScrollAnimations() {
   const elements = document.querySelectorAll(
-    '.service-card, .process-step, .about-value, .about-stat-card, .project-card, .testimonial-card, .contact-item, .contact-form-wrapper, .cta-card'
+    '.service-card, .process-step, .about-value, .about-stat-card, .project-card, .testimonial-card, .faq-item, .contact-item, .contact-form-wrapper, .cta-card'
   );
 
   elements.forEach(el => el.classList.add('fade-in'));
@@ -165,6 +167,82 @@ function initServiceCardTilt() {
     card.addEventListener('mouseleave', () => {
       card.style.transform = '';
     });
+  });
+}
+
+/* ---------- Counter Animation ---------- */
+function initCounterAnimation() {
+  const counters = document.querySelectorAll('.trust-number[data-target]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(counter => observer.observe(counter));
+}
+
+function animateCounter(element) {
+  const target = parseInt(element.getAttribute('data-target'));
+  const duration = 2000;
+  const increment = target / (duration / 16);
+  let current = 0;
+
+  function updateCounter() {
+    current += increment;
+    if (current < target) {
+      element.textContent = Math.floor(current);
+      requestAnimationFrame(updateCounter);
+    } else {
+      element.textContent = target;
+    }
+  }
+
+  requestAnimationFrame(updateCounter);
+}
+
+/* ---------- FAQ Accordion ---------- */
+function initFAQ() {
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+
+    question.addEventListener('click', () => {
+      const isActive = item.classList.contains('active');
+
+      faqItems.forEach(otherItem => {
+        otherItem.classList.remove('active');
+        otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isActive) {
+        item.classList.add('active');
+        question.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+}
+
+/* ---------- Back to Top ---------- */
+function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
@@ -264,44 +342,25 @@ function initContactForm() {
 
     window.location.href = mailtoLink;
 
-    note.textContent = 'Se abrió tu cliente de correo con tu solicitud lista para enviar.';
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalHTML = submitBtn.innerHTML;
+    submitBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Solicitud Lista
+    `;
+    submitBtn.style.background = 'linear-gradient(135deg, #17d3ff, #0a58ff)';
+
+    note.textContent = 'Se abrió tu cliente de correo. Completa el envío desde ahí, o escríbenos directo por WhatsApp.';
     note.classList.add('success');
+
+    setTimeout(() => {
+      form.reset();
+      submitBtn.innerHTML = originalHTML;
+      submitBtn.style.background = '';
+      note.textContent = '';
+      note.classList.remove('success');
+    }, 8000);
   });
-}
-
-/* ---------- Counter Animation ---------- */
-function initCounterAnimation() {
-  const counters = document.querySelectorAll('.trust-number[data-target]');
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
-
-  counters.forEach(counter => observer.observe(counter));
-}
-
-function animateCounter(element) {
-  const target = parseInt(element.getAttribute('data-target'));
-  const duration = 2000;
-  const increment = target / (duration / 16);
-  let current = 0;
-
-  function updateCounter() {
-    current += increment;
-    if (current < target) {
-      element.textContent = Math.floor(current);
-      requestAnimationFrame(updateCounter);
-    } else {
-      element.textContent = target;
-    }
-  }
-
-  requestAnimationFrame(updateCounter);
 }
 
 /* ---------- Smooth Scroll for Anchor Links ---------- */
