@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initFAQ();
   initCounterAnimation();
   initQuoteBuilder();
+  initCCTVQuoteWizard();
   initCoverageChecker();
   initCurrentYear();
   initPersonalBanner();
@@ -546,6 +547,207 @@ function initQuoteBuilder() {
   });
 
   renderSummary();
+}
+
+/* ---------- CCTV Quote Wizard ----------
+   Pricing here is an editable example, calibrated so a 4-camera
+   Full/analog kit with audio = Q2,700. Update the numbers in
+   CCTV_CONFIG once real prices are confirmed. */
+const CCTV_CONFIG = {
+  sizes: [4, 8, 16],
+  volumeDiscount: { 4: 1, 8: 0.95, 16: 0.9 },
+  audioPerUnit: 50,
+  tech: {
+    analog: {
+      label: "Análogas (HD-CVI/TVI)",
+      surcharge: 0,
+      wiring:
+        "Usan cable coaxial (RG59) + fuente de poder y se conectan a un DVR. Ideal si ya existe cableado coaxial instalado o buscas el costo más bajo.",
+    },
+    ip: {
+      label: "IP (Red)",
+      surcharge: 150,
+      wiring:
+        "Usan cable de red UTP Cat6 y se conectan a un NVR con switch PoE (un solo cable lleva datos y energía). Mejor resolución y calidad de video remoto.",
+    },
+  },
+  tiers: {
+    full: {
+      label: "Full",
+      desc: "Kit completo: mayor resolución, visión nocturna mejorada y más días de grabación.",
+      perCamera: 625,
+    },
+    estandar: {
+      label: "Estándar",
+      desc: "Cobertura básica de accesos y áreas comunes, resolución HD.",
+      perCamera: 500,
+    },
+    dual: {
+      label: "Dual (audio bidireccional)",
+      desc: "Cámaras con audio de dos vías (habla y escucha en tiempo real). Ideal para portones y recepción.",
+      perCamera: 750,
+      includesAudio: true,
+    },
+    perimetral: {
+      label: "Perimetral",
+      desc: "Enfocado en el perímetro exterior: mayor alcance IR, detección de movimiento y resistencia a la intemperie.",
+      perCamera: 900,
+      unitLabel: "puntos",
+    },
+  },
+};
+
+function initCCTVQuoteWizard() {
+  const wizard = document.getElementById("cctvWizard");
+  if (!wizard) return;
+
+  const sizeContainer = document.getElementById("cctvSizeOptions");
+  const techContainer = document.getElementById("cctvTechOptions");
+  const wiringNote = document.getElementById("cctvWiringNote");
+  const tierContainer = document.getElementById("cctvTierOptions");
+  const audioRow = document.getElementById("cctvAudioRow");
+  const audioToggle = document.getElementById("cctvAudioToggle");
+  const audioHint = document.getElementById("cctvAudioHint");
+  const result = document.getElementById("cctvResult");
+  const resultSummary = document.getElementById("cctvResultSummary");
+  const resultPrice = document.getElementById("cctvResultPrice");
+  const whatsappBtn = document.getElementById("cctvWhatsappBtn");
+
+  const state = { size: 4, tech: "analog", tier: "full", audio: false };
+
+  function unitLabel() {
+    return CCTV_CONFIG.tiers[state.tier].unitLabel || "cámaras";
+  }
+
+  function computePrice() {
+    const tier = CCTV_CONFIG.tiers[state.tier];
+    const tech = CCTV_CONFIG.tech[state.tech];
+    const volume = CCTV_CONFIG.volumeDiscount[state.size] || 1;
+    let total = (tier.perCamera + tech.surcharge) * state.size * volume;
+    if (state.audio && !tier.includesAudio) {
+      total += CCTV_CONFIG.audioPerUnit * state.size;
+    }
+    return Math.round(total / 10) * 10;
+  }
+
+  function renderSizeOptions() {
+    sizeContainer.innerHTML = "";
+    CCTV_CONFIG.sizes.forEach((size) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cctv-option" + (state.size === size ? " active" : "");
+      btn.textContent = `${size} ${unitLabel()}`;
+      btn.addEventListener("click", () => {
+        state.size = size;
+        renderSizeOptions();
+        update();
+      });
+      sizeContainer.appendChild(btn);
+    });
+  }
+
+  function renderTechOptions() {
+    techContainer.innerHTML = "";
+    Object.keys(CCTV_CONFIG.tech).forEach((key) => {
+      const tech = CCTV_CONFIG.tech[key];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cctv-option" + (state.tech === key ? " active" : "");
+      btn.textContent = tech.label;
+      btn.addEventListener("click", () => {
+        state.tech = key;
+        renderTechOptions();
+        update();
+      });
+      techContainer.appendChild(btn);
+    });
+  }
+
+  function renderTierOptions() {
+    tierContainer.innerHTML = "";
+    Object.keys(CCTV_CONFIG.tiers).forEach((key) => {
+      const tier = CCTV_CONFIG.tiers[key];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cctv-option" + (state.tier === key ? " active" : "");
+      btn.innerHTML = `<span class="cctv-option-name">${tier.label}</span><span class="cctv-option-desc">${tier.desc}</span>`;
+      btn.addEventListener("click", () => {
+        state.tier = key;
+        renderTierOptions();
+        renderSizeOptions();
+        update();
+      });
+      tierContainer.appendChild(btn);
+    });
+  }
+
+  function update() {
+    wiringNote.textContent = CCTV_CONFIG.tech[state.tech].wiring;
+    wiringNote.hidden = false;
+
+    const tier = CCTV_CONFIG.tiers[state.tier];
+    if (tier.includesAudio) {
+      audioToggle.checked = true;
+      audioToggle.disabled = true;
+      audioRow.classList.add("disabled");
+      audioHint.textContent = "Audio bidireccional incluido en este sistema.";
+    } else {
+      audioToggle.disabled = false;
+      audioRow.classList.remove("disabled");
+      audioHint.textContent = `+ Q${
+        CCTV_CONFIG.audioPerUnit * state.size
+      } por audio en las ${state.size} ${unitLabel()}`;
+    }
+
+    const price = computePrice();
+    const label = unitLabel();
+    const audioActive = tier.includesAudio || state.audio;
+
+    resultSummary.innerHTML = `Kit de <strong>${state.size} ${label}</strong> · Tecnología <strong>${
+      CCTV_CONFIG.tech[state.tech].label
+    }</strong> · Sistema <strong>${tier.label}</strong> · Audio: <strong>${
+      audioActive ? "Sí" : "No"
+    }</strong>`;
+    resultPrice.textContent = `Q${price.toLocaleString("es-GT")}`;
+    result.hidden = false;
+  }
+
+  audioToggle.addEventListener("change", () => {
+    state.audio = audioToggle.checked;
+    update();
+  });
+
+  whatsappBtn.addEventListener("click", () => {
+    const tier = CCTV_CONFIG.tiers[state.tier];
+    const tech = CCTV_CONFIG.tech[state.tech];
+    const price = computePrice();
+    const audioActive = tier.includesAudio || state.audio;
+    const label = unitLabel();
+
+    const lines = [
+      "Hola, quisiera solicitar esta cotización de cámaras CCTV:",
+      "",
+      `- Kit: ${state.size} ${label}`,
+      `- Tecnología: ${tech.label}`,
+      `- Sistema: ${tier.label}`,
+      `- Audio: ${audioActive ? "Sí" : "No"}`,
+      `- Precio estimado: Q${price.toLocaleString("es-GT")}`,
+      "",
+      "¿Podrían confirmar disponibilidad y coordinar una visita técnica?",
+    ];
+
+    const message = encodeURIComponent(lines.join("\n"));
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
+      "_blank",
+      "noopener"
+    );
+  });
+
+  renderSizeOptions();
+  renderTechOptions();
+  renderTierOptions();
+  update();
 }
 
 /* ---------- Coverage Checker (Verificador de Cobertura) ---------- */

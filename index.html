@@ -923,15 +923,86 @@
                 </div>
               </div>
               <div class="quote-panel" data-area="Seguridad">
+                <div class="cctv-wizard" id="cctvWizard">
+                  <div class="cctv-wizard-header">
+                    <span class="cctv-wizard-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M3 8L14 8C15.1 8 16 8.9 16 10V16C16 17.1 15.1 18 14 18H3V8Z"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                        />
+                        <path
+                          d="M16 11L21 8V18L16 15"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <div>
+                      <h3>Cotizador rápido de cámaras CCTV</h3>
+                      <p>
+                        Arma tu kit en 3 pasos y mira el precio estimado al
+                        instante.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="cctv-step">
+                    <span class="cctv-step-label">1. Tamaño del kit</span>
+                    <div class="cctv-options" id="cctvSizeOptions" role="radiogroup"></div>
+                  </div>
+
+                  <div class="cctv-step">
+                    <span class="cctv-step-label">2. Tecnología</span>
+                    <div class="cctv-options" id="cctvTechOptions" role="radiogroup"></div>
+                    <p class="cctv-note" id="cctvWiringNote" hidden></p>
+                  </div>
+
+                  <div class="cctv-step">
+                    <span class="cctv-step-label">3. Tipo de sistema</span>
+                    <div class="cctv-options cctv-options-cards" id="cctvTierOptions" role="radiogroup"></div>
+                  </div>
+
+                  <div class="cctv-step cctv-audio-row">
+                    <label class="cctv-audio-toggle" id="cctvAudioRow">
+                      <input type="checkbox" id="cctvAudioToggle" />
+                      <span>Agregar audio</span>
+                    </label>
+                    <span class="cctv-audio-hint" id="cctvAudioHint"></span>
+                  </div>
+
+                  <div class="cctv-result" id="cctvResult" hidden>
+                    <div class="cctv-result-summary" id="cctvResultSummary"></div>
+                    <div class="cctv-result-price">
+                      <span>Precio estimado</span>
+                      <strong id="cctvResultPrice">Q0</strong>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-full quote-whatsapp-btn"
+                      id="cctvWhatsappBtn"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M20.5 12C20.5 16.7 16.7 20.5 12 20.5C10.5 20.5 9.1 20.13 7.9 19.44L3.5 20.5L4.6 16.24C3.83 14.98 3.5 13.55 3.5 12C3.5 7.3 7.3 3.5 12 3.5C16.7 3.5 20.5 7.3 20.5 12Z"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          fill="none"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      Solicitar esta cotización por WhatsApp
+                    </button>
+                    <p class="cctv-disclaimer">
+                      Precio estimado, sujeto a confirmación tras visita técnica.
+                    </p>
+                  </div>
+                </div>
+
                 <div class="quote-pills">
-                  <label class="quote-pill"
-                    ><input
-                      type="checkbox"
-                      name="quoteService"
-                      value="Cámaras de videovigilancia (CCTV)"
-                      data-area="Seguridad"
-                    /><span>Cámaras de videovigilancia (CCTV)</span></label
-                  >
                   <label class="quote-pill"
                     ><input
                       type="checkbox"

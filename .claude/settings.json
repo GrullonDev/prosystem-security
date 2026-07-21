@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node pw_test.js)",
+      "Bash(lsof -ti:8934 -sTCP:LISTEN)",
+      "Bash(xargs -r kill)"
+    ]
+  }
+}
