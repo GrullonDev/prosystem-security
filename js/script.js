@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initCCTVQuoteWizard();
   initCoverageChecker();
   initCurrentYear();
-  initPersonalBanner();
 });
 
 /* ---------- Preloader ---------- */
@@ -827,42 +826,3 @@ function initCoverageChecker() {
   });
 }
 
-/* ---------- Personal Brand Banner ---------- */
-function initPersonalBanner() {
-  const banner = document.getElementById("personalBanner");
-  const closeBtn = document.getElementById("personalBannerClose");
-  if (!banner || !closeBtn) return;
-
-  const STORAGE_KEY = "pssPersonalBannerDismissed";
-  if (localStorage.getItem(STORAGE_KEY) === "1") return;
-
-  let shown = false;
-
-  function showBanner() {
-    if (shown) return;
-    shown = true;
-    banner.hidden = false;
-    requestAnimationFrame(() => {
-      banner.classList.add("visible");
-      document.body.classList.add("personal-banner-open");
-    });
-    window.removeEventListener("scroll", onScroll);
-  }
-
-  function onScroll() {
-    if (window.scrollY > window.innerHeight * 0.6) {
-      showBanner();
-    }
-  }
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  closeBtn.addEventListener("click", () => {
-    banner.classList.remove("visible");
-    document.body.classList.remove("personal-banner-open");
-    localStorage.setItem(STORAGE_KEY, "1");
-    setTimeout(() => {
-      banner.hidden = true;
-    }, 500);
-  });
-}
