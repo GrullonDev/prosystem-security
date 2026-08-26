@@ -2125,82 +2125,194 @@
             </div>
           </div>
           <div class="contact-form-wrapper">
+            <div class="form-stepper" aria-hidden="true">
+              <div class="form-step-indicator active" data-step="1">
+                <span class="form-step-number">1</span>
+                <span class="form-step-label">Servicio</span>
+              </div>
+              <div class="form-step-line"></div>
+              <div class="form-step-indicator" data-step="2">
+                <span class="form-step-number">2</span>
+                <span class="form-step-label">Detalles</span>
+              </div>
+              <div class="form-step-line"></div>
+              <div class="form-step-indicator" data-step="3">
+                <span class="form-step-number">3</span>
+                <span class="form-step-label">Contacto</span>
+              </div>
+            </div>
+
             <form class="contact-form" id="contactForm" novalidate>
-              <div class="form-row">
+              <!-- Step 1: Servicio -->
+              <div class="form-step active" data-step-panel="1">
                 <div class="form-group">
-                  <label for="name">Nombre completo</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Tu nombre"
+                  <label>¿Qué servicio necesitas?</label>
+                  <div class="form-service-grid">
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="informatica" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <rect x="2" y="4" width="20" height="13" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" />
+                          <path d="M8 21H16M12 17V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        </svg>
+                      </span>
+                      <span>Informática</span>
+                    </label>
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="finanzas" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <path d="M3 17L9 11L13 15L21 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                          <path d="M15 7H21V13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span>Finanzas</span>
+                    </label>
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="seguridad" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L4 6V11C4 16.5 7.4 21.3 12 22.5C16.6 21.3 20 16.5 20 11V6L12 2Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+                          <path d="M9 12L11 14L15.5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span>Seguridad</span>
+                    </label>
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="visitas" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2C7.03 2 3 6.03 3 11C3 15.5 7 19 12 22C17 19 21 15.5 21 11C21 6.03 16.97 2 12 2Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+                          <circle cx="12" cy="11" r="3" stroke="currentColor" stroke-width="1.5" fill="none" />
+                        </svg>
+                      </span>
+                      <span>Visitas Técnicas</span>
+                    </label>
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="electrico" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <path d="M13 2L4 14H11L10 22L20 9H13L13 2Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span>Eléctrico</span>
+                    </label>
+                    <label class="form-service-card">
+                      <input type="radio" name="service" value="otro" required />
+                      <span class="form-service-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                          <circle cx="5" cy="12" r="1.6" fill="currentColor" />
+                          <circle cx="12" cy="12" r="1.6" fill="currentColor" />
+                          <circle cx="19" cy="12" r="1.6" fill="currentColor" />
+                        </svg>
+                      </span>
+                      <span>Otro</span>
+                    </label>
+                  </div>
+                  <span class="form-error" id="serviceError"></span>
+                </div>
+                <div class="form-group">
+                  <label>¿Qué tan pronto lo necesitas?</label>
+                  <div class="form-urgency-group">
+                    <label class="form-urgency-pill">
+                      <input type="radio" name="urgency" value="hoy" />
+                      <span>Hoy mismo</span>
+                    </label>
+                    <label class="form-urgency-pill">
+                      <input type="radio" name="urgency" value="semana" />
+                      <span>Esta semana</span>
+                    </label>
+                    <label class="form-urgency-pill selected">
+                      <input type="radio" name="urgency" value="cotizando" checked />
+                      <span>Solo estoy cotizando</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-step-actions form-step-actions-end">
+                  <button type="button" class="btn btn-primary form-next" data-next="2">
+                    Siguiente
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                      <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2: Detalles -->
+              <div class="form-step" data-step-panel="2">
+                <div class="form-group">
+                  <label for="message">Cuéntanos qué necesitas</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="6"
+                    maxlength="500"
+                    placeholder="Describe tu proyecto o problema con el mayor detalle posible: qué necesitas, dónde y cuándo..."
                     required
-                  />
-                  <span class="form-error" id="nameError"></span>
+                  ></textarea>
+                  <div class="form-textarea-meta">
+                    <span class="form-error" id="messageError"></span>
+                    <span class="form-char-count" id="messageCharCount">0/500</span>
+                  </div>
+                </div>
+                <div class="form-step-actions">
+                  <button type="button" class="btn btn-secondary form-prev" data-prev="1">
+                    Atrás
+                  </button>
+                  <button type="button" class="btn btn-primary form-next" data-next="3">
+                    Siguiente
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                      <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 3: Contacto -->
+              <div class="form-step" data-step-panel="3">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="name">Nombre completo</label>
+                    <input type="text" id="name" name="name" placeholder="Tu nombre" required />
+                    <span class="form-error" id="nameError"></span>
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+502 0000 0000" />
+                    <span class="form-error" id="phoneError"></span>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="email">Correo electrónico</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="tu@email.com"
-                    required
-                  />
+                  <input type="email" id="email" name="email" placeholder="tu@email.com" />
                   <span class="form-error" id="emailError"></span>
                 </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="phone">Teléfono</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="+502 0000 0000"
-                  />
-                  <span class="form-error" id="phoneError"></span>
+
+                <div class="form-summary" id="formSummary"></div>
+
+                <div class="form-step-actions form-step-actions-start">
+                  <button type="button" class="btn btn-secondary form-prev" data-prev="2">
+                    Atrás
+                  </button>
                 </div>
-                <div class="form-group">
-                  <label for="service">Servicio de interés</label>
-                  <select id="service" name="service" required>
-                    <option value="" disabled selected>
-                      Selecciona un servicio
-                    </option>
-                    <option value="informatica">Informática</option>
-                    <option value="finanzas">Finanzas</option>
-                    <option value="seguridad">Seguridad</option>
-                    <option value="visitas">Visitas Técnicas</option>
-                    <option value="electrico">Eléctrico</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                  <span class="form-error" id="serviceError"></span>
+
+                <div class="form-send-options">
+                  <button type="submit" class="btn btn-primary btn-full">
+                    Enviar por Correo
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+                      <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button type="button" class="btn btn-whatsapp btn-full" id="contactWhatsappBtn">
+                    Enviar por WhatsApp
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M20.5 12C20.5 16.7 16.7 20.5 12 20.5C10.5 20.5 9.1 20.13 7.9 19.44L3.5 20.5L4.6 16.24C3.83 14.98 3.5 13.55 3.5 12C3.5 7.3 7.3 3.5 12 3.5C16.7 3.5 20.5 7.3 20.5 12Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
                 </div>
+                <p class="form-note" id="formNote"></p>
               </div>
-              <div class="form-group">
-                <label for="message">Mensaje</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  placeholder="Cuéntanos qué necesitas..."
-                  required
-                ></textarea>
-                <span class="form-error" id="messageError"></span>
-              </div>
-              <button type="submit" class="btn btn-primary btn-full">
-                Enviar Mensaje
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path
-                    d="M18 2L9 11M18 2L12 18L9 11M18 2L2 8L9 11"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
-              <p class="form-note" id="formNote"></p>
             </form>
           </div>
         </div>

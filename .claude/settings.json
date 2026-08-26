@@ -3,7 +3,19 @@
     "allow": [
       "Bash(node pw_test.js)",
       "Bash(lsof -ti:8934 -sTCP:LISTEN)",
-      "Bash(xargs -r kill)"
+      "Bash(xargs -r kill)",
+      "WebSearch",
+      "Bash(where msedge.exe)",
+      "Bash(where chrome.exe)",
+      "Bash(node -e \"console.log\\(require.resolve\\('playwright'\\)\\)\")",
+      "Bash(git diff *)",
+      "Bash(mkdir -p \"/c/Users/jgrullon/AppData/Local/Temp/claude/c--Users-jgrullon-Documents-MISARCHIVOS-AppsFlutter-prosystem-security/f067ce27-1e77-49c6-89b1-d0f412b149e8/scratchpad\")",
+      "Bash(git apply *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }
