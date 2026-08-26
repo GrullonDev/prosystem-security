@@ -420,9 +420,16 @@ function initQuoteBuilder() {
   const checkboxes = document.querySelectorAll('input[name="quoteService"]');
   const summaryList = document.getElementById("quoteSummaryList");
   const summaryEmpty = document.getElementById("quoteSummaryEmpty");
+  const summaryTotal = document.getElementById("quoteSummaryTotal");
+  const summaryTotalPrice = document.getElementById("quoteSummaryTotalPrice");
+  const summaryDisclaimer = document.getElementById("quoteSummaryDisclaimer");
   const noteField = document.getElementById("quoteNote");
   const whatsappBtn = document.getElementById("quoteWhatsappBtn");
   const clearBtn = document.getElementById("quoteClearBtn");
+
+  function formatQ(amount) {
+    return `Q${amount.toLocaleString("es-GT")}`;
+  }
 
   if (!tabs.length || !checkboxes.length || !whatsappBtn) return;
 
@@ -456,13 +463,20 @@ function initQuoteBuilder() {
     if (checked.length === 0) {
       summaryEmpty.style.display = "";
       whatsappBtn.disabled = true;
+      summaryTotal.hidden = true;
+      summaryDisclaimer.hidden = true;
       return;
     }
 
     summaryEmpty.style.display = "none";
     whatsappBtn.disabled = false;
 
+    let total = 0;
+
     checked.forEach((cb) => {
+      const price = Number(cb.dataset.price) || 0;
+      total += price;
+
       const item = document.createElement("div");
       item.className = "quote-summary-item";
 
@@ -473,8 +487,12 @@ function initQuoteBuilder() {
       const serviceLabel = document.createElement("span");
       serviceLabel.className = "quote-summary-service";
       serviceLabel.textContent = cb.value;
+      const priceLabel = document.createElement("span");
+      priceLabel.className = "quote-summary-price";
+      priceLabel.textContent = price > 0 ? `Desde ${formatQ(price)}` : "Gratis";
       info.appendChild(areaLabel);
       info.appendChild(serviceLabel);
+      info.appendChild(priceLabel);
 
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
@@ -492,6 +510,11 @@ function initQuoteBuilder() {
       item.appendChild(removeBtn);
       summaryList.appendChild(item);
     });
+
+    summaryTotal.hidden = false;
+    summaryDisclaimer.hidden = false;
+    summaryTotalPrice.textContent =
+      total > 0 ? `Desde ${formatQ(total)}` : "Gratis";
   }
 
   checkboxes.forEach((cb) => {
@@ -517,18 +540,33 @@ function initQuoteBuilder() {
     if (checked.length === 0) return;
 
     const grouped = {};
+    let total = 0;
     checked.forEach((cb) => {
       const area = cb.dataset.area;
+      const price = Number(cb.dataset.price) || 0;
+      total += price;
       if (!grouped[area]) grouped[area] = [];
-      grouped[area].push(cb.value);
+      grouped[area].push({ name: cb.value, price });
     });
 
     const lines = ["Hola, quisiera solicitar una cotización para:", ""];
     Object.keys(grouped).forEach((area) => {
       lines.push(`*${area}*`);
-      grouped[area].forEach((service) => lines.push(`- ${service}`));
+      grouped[area].forEach((service) =>
+        lines.push(
+          `- ${service.name} (${
+            service.price > 0 ? `Desde ${formatQ(service.price)}` : "Gratis"
+          })`
+        )
+      );
       lines.push("");
     });
+
+    lines.push(
+      `*Total aproximado: ${total > 0 ? `Desde ${formatQ(total)}` : "Gratis"}*`
+    );
+    lines.push("(Precio referencial, sujeto a confirmación final)");
+    lines.push("");
 
     const note = noteField ? noteField.value.trim() : "";
     if (note) {
