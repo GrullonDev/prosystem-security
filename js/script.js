@@ -6,6 +6,8 @@ const CONTACT_EMAIL = "info@prosystem-security.com";
 const WHATSAPP_NUMBER = "50249095105";
 
 document.addEventListener("DOMContentLoaded", () => {
+  initThemeToggle();
+  initCodeProtection();
   initPreloader();
   initNavbar();
   initMobileMenu();
@@ -22,6 +24,95 @@ document.addEventListener("DOMContentLoaded", () => {
   initCoverageChecker();
   initCurrentYear();
 });
+
+/* ---------- Theme Toggle (claro/oscuro) ---------- */
+function initThemeToggle() {
+  const toggle = document.getElementById("themeToggle");
+  if (!toggle) return;
+
+  function apply(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      toggle.setAttribute("aria-label", "Cambiar a modo oscuro");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      toggle.setAttribute("aria-label", "Cambiar a modo claro");
+    }
+  }
+
+  let saved = "dark";
+  try {
+    saved = localStorage.getItem("theme") || "dark";
+  } catch (e) {}
+  apply(saved);
+
+  toggle.addEventListener("click", () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const next = isLight ? "dark" : "light";
+    apply(next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch (e) {}
+  });
+}
+
+/* ---------- Toasts ---------- */
+function showToast(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  const icon = document.createElement("div");
+  icon.className = "toast-icon";
+  icon.innerHTML =
+    type === "success"
+      ? '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 6V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14" r="1" fill="currentColor"/></svg>';
+
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  toast.appendChild(icon);
+  toast.appendChild(text);
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("visible"));
+
+  setTimeout(() => {
+    toast.classList.remove("visible");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+/* ---------- Protección básica de código en el navegador ----------
+   Nota: esto NO es seguridad real (el código siempre es visible/descargable
+   por el navegador). Solo disuade la copia casual del contenido. */
+function initCodeProtection() {
+  document.addEventListener("contextmenu", (e) => {
+    const isFormField = e.target.closest("input, textarea, select");
+    if (!isFormField) e.preventDefault();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const key = e.key ? e.key.toLowerCase() : "";
+    const blockedCombo =
+      key === "f12" ||
+      (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(key)) ||
+      (e.ctrlKey && key === "u");
+    if (blockedCombo) e.preventDefault();
+  });
+
+  console.log(
+    "%cAlto.",
+    "color:#ffb020; font-size:28px; font-weight:bold;"
+  );
+  console.log(
+    "%cSi alguien te pidió pegar código aquí para 'activar' algo o 'ayudarte', es una estafa (self-XSS). Cerrar esta ventana no afecta tu sesión.",
+    "color:#94a3b8; font-size:14px;"
+  );
+}
 
 /* ---------- Preloader ---------- */
 function initPreloader() {
@@ -269,96 +360,294 @@ function initBackToTop() {
 /* ---------- Contact Form Validation & Submission ---------- */
 function initContactForm() {
   const form = document.getElementById("contactForm");
-  const note = document.getElementById("formNote");
+  if (!form) return;
 
-  const validators = {
-    name: (value) => {
-      if (!value.trim()) return "Ingresa tu nombre completo.";
-      if (value.trim().length < 3)
-        return "El nombre debe tener al menos 3 caracteres.";
-      return "";
-    },
-    email: (value) => {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!value.trim()) return "Ingresa tu correo electrónico.";
-      if (!re.test(value.trim()))
-        return "Ingresa un correo electrónico válido.";
-      return "";
-    },
-    phone: (value) => {
-      if (!value.trim()) return "";
-      const re = /^[+\d\s-]{8,15}$/;
-      if (!re.test(value.trim())) return "Ingresa un teléfono válido.";
-      return "";
-    },
-    service: (value) => {
-      if (!value) return "Selecciona un servicio.";
-      return "";
-    },
-    message: (value) => {
-      if (!value.trim()) return "Cuéntanos qué necesitas.";
-      if (value.trim().length < 10)
-        return "Danos un poco más de detalle (mínimo 10 caracteres).";
-      return "";
-    },
+  const note = document.getElementById("formNote");
+  const wrapper = document.querySelector(".contact-form-wrapper");
+  const steps = Array.from(form.querySelectorAll(".form-step"));
+  const indicators = Array.from(document.querySelectorAll(".form-step-indicator"));
+  const lines = Array.from(document.querySelectorAll(".form-step-line"));
+  const serviceCards = Array.from(form.querySelectorAll(".form-service-card"));
+  const urgencyPills = Array.from(form.querySelectorAll(".form-urgency-pill"));
+  const messageField = document.getElementById("message");
+  const charCount = document.getElementById("messageCharCount");
+  const summaryBox = document.getElementById("formSummary");
+  const whatsappBtn = document.getElementById("contactWhatsappBtn");
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  const serviceLabels = {
+    informatica: "Informática",
+    finanzas: "Finanzas",
+    seguridad: "Seguridad",
+    visitas: "Visitas Técnicas",
+    electrico: "Eléctrico",
+    otro: "Otro",
   };
 
-  Object.keys(validators).forEach((fieldName) => {
-    const field = form.elements[fieldName];
-    if (!field) return;
-    field.addEventListener("blur", () => validateField(fieldName));
-    field.addEventListener("input", () => {
-      const group = field.closest(".form-group");
-      if (group && group.classList.contains("error")) {
-        validateField(fieldName);
-      }
+  const urgencyLabels = {
+    hoy: "Hoy mismo (urgente)",
+    semana: "Esta semana",
+    cotizando: "Solo estoy cotizando",
+  };
+
+  let currentStep = 1;
+
+  function goToStep(n) {
+    currentStep = n;
+    steps.forEach((panel) => {
+      panel.classList.toggle(
+        "active",
+        Number(panel.dataset.stepPanel) === n
+      );
+    });
+    indicators.forEach((ind) => {
+      const stepNum = Number(ind.dataset.step);
+      ind.classList.toggle("active", stepNum === n);
+      ind.classList.toggle("completed", stepNum < n);
+    });
+    lines.forEach((line, i) => {
+      line.classList.toggle("completed", i + 1 < n);
+    });
+    if (n === 3) renderSummary();
+    if (wrapper) wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  serviceCards.forEach((card) => {
+    const input = card.querySelector("input");
+    input.addEventListener("change", () => {
+      serviceCards.forEach((c) =>
+        c.classList.toggle("selected", c.querySelector("input").checked)
+      );
     });
   });
 
-  function validateField(fieldName) {
-    const field = form.elements[fieldName];
-    const errorEl = document.getElementById(`${fieldName}Error`);
-    const group = field.closest(".form-group");
-    const message = validators[fieldName](field.value);
+  urgencyPills.forEach((pill) => {
+    const input = pill.querySelector("input");
+    input.addEventListener("change", () => {
+      urgencyPills.forEach((p) =>
+        p.classList.toggle("selected", p.querySelector("input").checked)
+      );
+    });
+  });
 
-    if (message) {
-      group.classList.add("error");
-      errorEl.textContent = message;
-    } else {
-      group.classList.remove("error");
-      errorEl.textContent = "";
+  if (messageField && charCount) {
+    messageField.addEventListener("input", () => {
+      charCount.textContent = `${messageField.value.length}/500`;
+      if (messageField.value.trim().length >= 10) {
+        setFieldValid("messageError", messageField);
+      }
+    });
+  }
+
+  function setFieldError(errorId, field, message) {
+    const errorEl = document.getElementById(errorId);
+    const group = field ? field.closest(".form-group") : null;
+    if (group) group.classList.add("error");
+    if (errorEl) errorEl.textContent = message;
+  }
+
+  function setFieldValid(errorId, field) {
+    const errorEl = document.getElementById(errorId);
+    const group = field ? field.closest(".form-group") : null;
+    if (group) group.classList.remove("error");
+    if (errorEl) errorEl.textContent = "";
+  }
+
+  function validateService() {
+    const checked = form.querySelector('input[name="service"]:checked');
+    if (!checked) {
+      setFieldError("serviceError", null, "Selecciona un servicio.");
+      return false;
     }
-    return !message;
+    setFieldValid("serviceError", null);
+    return true;
+  }
+
+  function validateMessage() {
+    const value = messageField.value.trim();
+    if (!value) {
+      setFieldError("messageError", messageField, "Cuéntanos qué necesitas.");
+      return false;
+    }
+    if (value.length < 10) {
+      setFieldError(
+        "messageError",
+        messageField,
+        "Danos un poco más de detalle (mínimo 10 caracteres)."
+      );
+      return false;
+    }
+    setFieldValid("messageError", messageField);
+    return true;
+  }
+
+  function validateName() {
+    const field = document.getElementById("name");
+    const value = field.value.trim();
+    if (!value) {
+      setFieldError("nameError", field, "Ingresa tu nombre completo.");
+      return false;
+    }
+    if (value.length < 3) {
+      setFieldError(
+        "nameError",
+        field,
+        "El nombre debe tener al menos 3 caracteres."
+      );
+      return false;
+    }
+    setFieldValid("nameError", field);
+    return true;
+  }
+
+  function validateEmail(isRequired) {
+    const field = document.getElementById("email");
+    const value = field.value.trim();
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      if (isRequired) {
+        setFieldError("emailError", field, "Ingresa tu correo electrónico.");
+        return false;
+      }
+      setFieldValid("emailError", field);
+      return true;
+    }
+    if (!re.test(value)) {
+      setFieldError(
+        "emailError",
+        field,
+        "Ingresa un correo electrónico válido."
+      );
+      return false;
+    }
+    setFieldValid("emailError", field);
+    return true;
+  }
+
+  function validatePhone() {
+    const field = document.getElementById("phone");
+    const value = field.value.trim();
+    if (!value) {
+      setFieldValid("phoneError", field);
+      return true;
+    }
+    const re = /^[+\d\s-]{8,15}$/;
+    if (!re.test(value)) {
+      setFieldError("phoneError", field, "Ingresa un teléfono válido.");
+      return false;
+    }
+    setFieldValid("phoneError", field);
+    return true;
+  }
+
+  ["name", "email", "phone"].forEach((id) => {
+    const field = document.getElementById(id);
+    field.addEventListener("blur", () => {
+      if (id === "name") validateName();
+      if (id === "email") validateEmail(false);
+      if (id === "phone") validatePhone();
+    });
+    field.addEventListener("input", () => {
+      const group = field.closest(".form-group");
+      if (!group || !group.classList.contains("error")) return;
+      if (id === "name") validateName();
+      if (id === "email") validateEmail(false);
+      if (id === "phone") validatePhone();
+    });
+  });
+
+  form.querySelectorAll(".form-next").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (currentStep === 1 && !validateService()) return;
+      if (currentStep === 2 && !validateMessage()) return;
+      goToStep(Number(btn.dataset.next));
+    });
+  });
+
+  form.querySelectorAll(".form-prev").forEach((btn) => {
+    btn.addEventListener("click", () => goToStep(Number(btn.dataset.prev)));
+  });
+
+  function renderSummary() {
+    if (!summaryBox) return;
+    const service = form.querySelector('input[name="service"]:checked');
+    const urgency = form.querySelector('input[name="urgency"]:checked');
+    const rows = [
+      [
+        "Servicio",
+        service ? serviceLabels[service.value] || service.value : "—",
+      ],
+      [
+        "Prioridad",
+        urgency ? urgencyLabels[urgency.value] : urgencyLabels.cotizando,
+      ],
+      ["Mensaje", messageField.value.trim() || "—"],
+    ];
+
+    summaryBox.innerHTML = "";
+    rows.forEach(([label, value]) => {
+      const row = document.createElement("div");
+      row.className = "form-summary-row";
+      const labelEl = document.createElement("span");
+      labelEl.className = "form-summary-label";
+      labelEl.textContent = label;
+      const valueEl = document.createElement("span");
+      valueEl.className = "form-summary-value";
+      valueEl.textContent = value;
+      row.appendChild(labelEl);
+      row.appendChild(valueEl);
+      summaryBox.appendChild(row);
+    });
+  }
+
+  function buildMessageParts() {
+    const data = Object.fromEntries(new FormData(form));
+    return {
+      data,
+      serviceLabel: serviceLabels[data.service] || data.service || "No especificado",
+      urgencyLabel: urgencyLabels[data.urgency] || urgencyLabels.cotizando,
+    };
+  }
+
+  function showNote(text, success) {
+    note.textContent = text;
+    note.classList.toggle("success", !!success);
+  }
+
+  function resetAfterSend() {
+    setTimeout(() => {
+      form.reset();
+      serviceCards.forEach((c) => c.classList.remove("selected"));
+      urgencyPills.forEach((p) => p.classList.remove("selected"));
+      const defaultUrgency = form.querySelector(
+        'input[name="urgency"][value="cotizando"]'
+      );
+      if (defaultUrgency) {
+        defaultUrgency.checked = true;
+        defaultUrgency.closest(".form-urgency-pill").classList.add("selected");
+      }
+      if (charCount) charCount.textContent = "0/500";
+      showNote("", false);
+      goToStep(1);
+    }, 8000);
   }
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const fieldsValid = Object.keys(validators).map(validateField);
-    if (fieldsValid.includes(false)) {
-      note.textContent = "Revisa los campos marcados antes de continuar.";
-      note.classList.remove("success");
-      return;
-    }
+    const validName = validateName();
+    const validEmail = validateEmail(true);
+    const validPhone = validatePhone();
+    if (!validName || !validEmail || !validPhone) return;
 
-    const data = Object.fromEntries(new FormData(form));
-    const serviceLabels = {
-      informatica: "Informática",
-      finanzas: "Finanzas",
-      seguridad: "Seguridad",
-      visitas: "Visitas Técnicas",
-      electrico: "Eléctrico",
-      otro: "Otro",
-    };
-
-    const subject = `Solicitud de cotización - ${
-      serviceLabels[data.service] || data.service
-    }`;
+    const { data, serviceLabel, urgencyLabel } = buildMessageParts();
+    const subject = `Solicitud de contacto - ${serviceLabel}`;
     const bodyLines = [
       `Nombre: ${data.name}`,
       `Correo: ${data.email}`,
       data.phone ? `Teléfono: ${data.phone}` : null,
-      `Servicio de interés: ${serviceLabels[data.service] || data.service}`,
+      `Servicio de interés: ${serviceLabel}`,
+      `Prioridad: ${urgencyLabel}`,
       "",
       data.message,
     ].filter(Boolean);
@@ -369,26 +658,51 @@ function initContactForm() {
 
     window.location.href = mailtoLink;
 
-    const submitBtn = form.querySelector('button[type="submit"]');
     const originalHTML = submitBtn.innerHTML;
     submitBtn.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Solicitud Lista
     `;
-    submitBtn.style.background = "linear-gradient(135deg, #17d3ff, #0a58ff)";
 
-    note.textContent =
-      "Se abrió tu cliente de correo. Completa el envío desde ahí, o escríbenos directo por WhatsApp.";
-    note.classList.add("success");
+    showNote(
+      "Se abrió tu cliente de correo. Completa el envío desde ahí.",
+      true
+    );
+    showToast("Se abrió tu cliente de correo con la solicitud lista.");
 
     setTimeout(() => {
-      form.reset();
       submitBtn.innerHTML = originalHTML;
-      submitBtn.style.background = "";
-      note.textContent = "";
-      note.classList.remove("success");
     }, 8000);
+    resetAfterSend();
   });
+
+  if (whatsappBtn) {
+    whatsappBtn.addEventListener("click", () => {
+      const validName = validateName();
+      const validPhone = validatePhone();
+      if (!validName || !validPhone) return;
+
+      const { data, serviceLabel, urgencyLabel } = buildMessageParts();
+      const lines = [
+        `Hola, soy ${data.name}.`,
+        `Servicio de interés: ${serviceLabel}`,
+        `Prioridad: ${urgencyLabel}`,
+        data.phone ? `Teléfono: ${data.phone}` : null,
+        data.email ? `Correo: ${data.email}` : null,
+        "",
+        data.message,
+      ].filter(Boolean);
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        lines.join("\n")
+      )}`;
+      window.open(url, "_blank", "noopener");
+
+      showNote("Se abrió WhatsApp con tu mensaje listo para enviar.", true);
+      showToast("Se abrió WhatsApp con tu mensaje listo para enviar.");
+      resetAfterSend();
+    });
+  }
 }
 
 /* ---------- Smooth Scroll for Anchor Links ---------- */
@@ -420,9 +734,16 @@ function initQuoteBuilder() {
   const checkboxes = document.querySelectorAll('input[name="quoteService"]');
   const summaryList = document.getElementById("quoteSummaryList");
   const summaryEmpty = document.getElementById("quoteSummaryEmpty");
+  const summaryTotal = document.getElementById("quoteSummaryTotal");
+  const summaryTotalPrice = document.getElementById("quoteSummaryTotalPrice");
+  const summaryDisclaimer = document.getElementById("quoteSummaryDisclaimer");
   const noteField = document.getElementById("quoteNote");
   const whatsappBtn = document.getElementById("quoteWhatsappBtn");
   const clearBtn = document.getElementById("quoteClearBtn");
+
+  function formatQ(amount) {
+    return `Q${amount.toLocaleString("es-GT")}`;
+  }
 
   if (!tabs.length || !checkboxes.length || !whatsappBtn) return;
 
@@ -456,13 +777,20 @@ function initQuoteBuilder() {
     if (checked.length === 0) {
       summaryEmpty.style.display = "";
       whatsappBtn.disabled = true;
+      summaryTotal.hidden = true;
+      summaryDisclaimer.hidden = true;
       return;
     }
 
     summaryEmpty.style.display = "none";
     whatsappBtn.disabled = false;
 
+    let total = 0;
+
     checked.forEach((cb) => {
+      const price = Number(cb.dataset.price) || 0;
+      total += price;
+
       const item = document.createElement("div");
       item.className = "quote-summary-item";
 
@@ -473,8 +801,12 @@ function initQuoteBuilder() {
       const serviceLabel = document.createElement("span");
       serviceLabel.className = "quote-summary-service";
       serviceLabel.textContent = cb.value;
+      const priceLabel = document.createElement("span");
+      priceLabel.className = "quote-summary-price";
+      priceLabel.textContent = price > 0 ? `Desde ${formatQ(price)}` : "Gratis";
       info.appendChild(areaLabel);
       info.appendChild(serviceLabel);
+      info.appendChild(priceLabel);
 
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
@@ -492,6 +824,11 @@ function initQuoteBuilder() {
       item.appendChild(removeBtn);
       summaryList.appendChild(item);
     });
+
+    summaryTotal.hidden = false;
+    summaryDisclaimer.hidden = false;
+    summaryTotalPrice.textContent =
+      total > 0 ? `Desde ${formatQ(total)}` : "Gratis";
   }
 
   checkboxes.forEach((cb) => {
@@ -517,18 +854,33 @@ function initQuoteBuilder() {
     if (checked.length === 0) return;
 
     const grouped = {};
+    let total = 0;
     checked.forEach((cb) => {
       const area = cb.dataset.area;
+      const price = Number(cb.dataset.price) || 0;
+      total += price;
       if (!grouped[area]) grouped[area] = [];
-      grouped[area].push(cb.value);
+      grouped[area].push({ name: cb.value, price });
     });
 
     const lines = ["Hola, quisiera solicitar una cotización para:", ""];
     Object.keys(grouped).forEach((area) => {
       lines.push(`*${area}*`);
-      grouped[area].forEach((service) => lines.push(`- ${service}`));
+      grouped[area].forEach((service) =>
+        lines.push(
+          `- ${service.name} (${
+            service.price > 0 ? `Desde ${formatQ(service.price)}` : "Gratis"
+          })`
+        )
+      );
       lines.push("");
     });
+
+    lines.push(
+      `*Total aproximado: ${total > 0 ? `Desde ${formatQ(total)}` : "Gratis"}*`
+    );
+    lines.push("(Precio referencial, sujeto a confirmación final)");
+    lines.push("");
 
     const note = noteField ? noteField.value.trim() : "";
     if (note) {
@@ -543,6 +895,7 @@ function initQuoteBuilder() {
       "_blank",
       "noopener"
     );
+    showToast("Se abrió WhatsApp con tu cotización lista.");
   });
 
   renderSummary();
@@ -741,6 +1094,7 @@ function initCCTVQuoteWizard() {
       "_blank",
       "noopener"
     );
+    showToast("Se abrió WhatsApp con tu cotización de CCTV lista.");
   });
 
   renderSizeOptions();
