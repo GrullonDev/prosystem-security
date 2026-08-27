@@ -2,7 +2,8 @@
    Pro System Security - JavaScript
    ======================================== */
 
-const CONTACT_EMAIL = "info@prosystem-security.com";
+// const CONTACT_EMAIL = "info@prosystem-security.com";
+const CONTACT_EMAIL_FAKE = "prosystem155@gmail.com";
 const WHATSAPP_NUMBER = "50249095105";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -47,7 +48,8 @@ function initThemeToggle() {
   apply(saved);
 
   toggle.addEventListener("click", () => {
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const isLight =
+      document.documentElement.getAttribute("data-theme") === "light";
     const next = isLight ? "dark" : "light";
     apply(next);
     try {
@@ -104,13 +106,10 @@ function initCodeProtection() {
     if (blockedCombo) e.preventDefault();
   });
 
-  console.log(
-    "%cAlto.",
-    "color:#ffb020; font-size:28px; font-weight:bold;"
-  );
+  console.log("%cAlto.", "color:#ffb020; font-size:28px; font-weight:bold;");
   console.log(
     "%cSi alguien te pidió pegar código aquí para 'activar' algo o 'ayudarte', es una estafa (self-XSS). Cerrar esta ventana no afecta tu sesión.",
-    "color:#94a3b8; font-size:14px;"
+    "color:#94a3b8; font-size:14px;",
   );
 }
 
@@ -202,7 +201,7 @@ function initMobileMenu() {
 /* ---------- Scroll Animations ---------- */
 function initScrollAnimations() {
   const elements = document.querySelectorAll(
-    ".service-card, .process-step, .about-value, .about-stat-card, .project-card, .testimonial-card, .faq-item, .contact-item, .contact-form-wrapper, .cta-card, .quote-main, .quote-summary, .coverage-widget"
+    ".service-card, .process-step, .about-value, .about-stat-card, .project-card, .testimonial-card, .faq-item, .contact-item, .contact-form-wrapper, .cta-card, .quote-main, .quote-summary, .coverage-widget",
   );
 
   elements.forEach((el) => el.classList.add("fade-in"));
@@ -219,7 +218,7 @@ function initScrollAnimations() {
     {
       threshold: 0.1,
       rootMargin: "0px 0px -40px 0px",
-    }
+    },
   );
 
   elements.forEach((el, i) => {
@@ -250,7 +249,7 @@ function initActiveNavOnScroll() {
     {
       threshold: 0.3,
       rootMargin: "-80px 0px -50% 0px",
-    }
+    },
   );
 
   sections.forEach((section) => observer.observe(section));
@@ -289,7 +288,7 @@ function initCounterAnimation() {
         }
       });
     },
-    { threshold: 0.5 }
+    { threshold: 0.5 },
   );
 
   counters.forEach((counter) => observer.observe(counter));
@@ -365,7 +364,9 @@ function initContactForm() {
   const note = document.getElementById("formNote");
   const wrapper = document.querySelector(".contact-form-wrapper");
   const steps = Array.from(form.querySelectorAll(".form-step"));
-  const indicators = Array.from(document.querySelectorAll(".form-step-indicator"));
+  const indicators = Array.from(
+    document.querySelectorAll(".form-step-indicator"),
+  );
   const lines = Array.from(document.querySelectorAll(".form-step-line"));
   const serviceCards = Array.from(form.querySelectorAll(".form-service-card"));
   const urgencyPills = Array.from(form.querySelectorAll(".form-urgency-pill"));
@@ -395,10 +396,7 @@ function initContactForm() {
   function goToStep(n) {
     currentStep = n;
     steps.forEach((panel) => {
-      panel.classList.toggle(
-        "active",
-        Number(panel.dataset.stepPanel) === n
-      );
+      panel.classList.toggle("active", Number(panel.dataset.stepPanel) === n);
     });
     indicators.forEach((ind) => {
       const stepNum = Number(ind.dataset.step);
@@ -416,7 +414,7 @@ function initContactForm() {
     const input = card.querySelector("input");
     input.addEventListener("change", () => {
       serviceCards.forEach((c) =>
-        c.classList.toggle("selected", c.querySelector("input").checked)
+        c.classList.toggle("selected", c.querySelector("input").checked),
       );
     });
   });
@@ -425,7 +423,7 @@ function initContactForm() {
     const input = pill.querySelector("input");
     input.addEventListener("change", () => {
       urgencyPills.forEach((p) =>
-        p.classList.toggle("selected", p.querySelector("input").checked)
+        p.classList.toggle("selected", p.querySelector("input").checked),
       );
     });
   });
@@ -473,7 +471,7 @@ function initContactForm() {
       setFieldError(
         "messageError",
         messageField,
-        "Danos un poco más de detalle (mínimo 10 caracteres)."
+        "Danos un poco más de detalle (mínimo 10 caracteres).",
       );
       return false;
     }
@@ -492,7 +490,7 @@ function initContactForm() {
       setFieldError(
         "nameError",
         field,
-        "El nombre debe tener al menos 3 caracteres."
+        "El nombre debe tener al menos 3 caracteres.",
       );
       return false;
     }
@@ -516,7 +514,7 @@ function initContactForm() {
       setFieldError(
         "emailError",
         field,
-        "Ingresa un correo electrónico válido."
+        "Ingresa un correo electrónico válido.",
       );
       return false;
     }
@@ -604,7 +602,8 @@ function initContactForm() {
     const data = Object.fromEntries(new FormData(form));
     return {
       data,
-      serviceLabel: serviceLabels[data.service] || data.service || "No especificado",
+      serviceLabel:
+        serviceLabels[data.service] || data.service || "No especificado",
       urgencyLabel: urgencyLabels[data.urgency] || urgencyLabels.cotizando,
     };
   }
@@ -620,7 +619,7 @@ function initContactForm() {
       serviceCards.forEach((c) => c.classList.remove("selected"));
       urgencyPills.forEach((p) => p.classList.remove("selected"));
       const defaultUrgency = form.querySelector(
-        'input[name="urgency"][value="cotizando"]'
+        'input[name="urgency"][value="cotizando"]',
       );
       if (defaultUrgency) {
         defaultUrgency.checked = true;
@@ -652,8 +651,8 @@ function initContactForm() {
       data.message,
     ].filter(Boolean);
 
-    const mailtoLink = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      subject
+    const mailtoLink = `mailto:${CONTACT_EMAIL_FAKE}?subject=${encodeURIComponent(
+      subject,
     )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
 
     window.location.href = mailtoLink;
@@ -666,7 +665,7 @@ function initContactForm() {
 
     showNote(
       "Se abrió tu cliente de correo. Completa el envío desde ahí.",
-      true
+      true,
     );
     showToast("Se abrió tu cliente de correo con la solicitud lista.");
 
@@ -694,7 +693,7 @@ function initContactForm() {
       ].filter(Boolean);
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        lines.join("\n")
+        lines.join("\n"),
       )}`;
       window.open(url, "_blank", "noopener");
 
@@ -761,7 +760,7 @@ function initQuoteBuilder() {
       panels.forEach((panel) => {
         panel.classList.toggle(
           "active",
-          panel.getAttribute("data-area") === area
+          panel.getAttribute("data-area") === area,
         );
       });
     });
@@ -870,14 +869,14 @@ function initQuoteBuilder() {
         lines.push(
           `- ${service.name} (${
             service.price > 0 ? `Desde ${formatQ(service.price)}` : "Gratis"
-          })`
-        )
+          })`,
+        ),
       );
       lines.push("");
     });
 
     lines.push(
-      `*Total aproximado: ${total > 0 ? `Desde ${formatQ(total)}` : "Gratis"}*`
+      `*Total aproximado: ${total > 0 ? `Desde ${formatQ(total)}` : "Gratis"}*`,
     );
     lines.push("(Precio referencial, sujeto a confirmación final)");
     lines.push("");
@@ -893,7 +892,7 @@ function initQuoteBuilder() {
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
       "_blank",
-      "noopener"
+      "noopener",
     );
     showToast("Se abrió WhatsApp con tu cotización lista.");
   });
@@ -1092,7 +1091,7 @@ function initCCTVQuoteWizard() {
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
       "_blank",
-      "noopener"
+      "noopener",
     );
     showToast("Se abrió WhatsApp con tu cotización de CCTV lista.");
   });
@@ -1139,8 +1138,7 @@ function initCoverageChecker() {
       title: "Consultemos tu zona",
       text: (zone) =>
         `Aún no tenemos ${zone} registrada. Escríbenos y confirmamos disponibilidad en minutos.`,
-      cta: (zone) =>
-        `Hola, quisiera consultar si tienen cobertura en ${zone}.`,
+      cta: (zone) => `Hola, quisiera consultar si tienen cobertura en ${zone}.`,
     },
   };
 
@@ -1155,7 +1153,7 @@ function initCoverageChecker() {
     const zone = option.textContent.trim();
     const data = MESSAGES[tier];
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-      data.cta(zone)
+      data.cta(zone),
     )}`;
 
     result.hidden = false;
@@ -1179,4 +1177,3 @@ function initCoverageChecker() {
     if (!result.hidden) showResult();
   });
 }
-
