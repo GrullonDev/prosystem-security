@@ -6,6 +6,8 @@ const CONTACT_EMAIL = "info@prosystem-security.com";
 const WHATSAPP_NUMBER = "50249095105";
 
 document.addEventListener("DOMContentLoaded", () => {
+  initThemeToggle();
+  initCodeProtection();
   initPreloader();
   initNavbar();
   initMobileMenu();
@@ -22,6 +24,95 @@ document.addEventListener("DOMContentLoaded", () => {
   initCoverageChecker();
   initCurrentYear();
 });
+
+/* ---------- Theme Toggle (claro/oscuro) ---------- */
+function initThemeToggle() {
+  const toggle = document.getElementById("themeToggle");
+  if (!toggle) return;
+
+  function apply(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      toggle.setAttribute("aria-label", "Cambiar a modo oscuro");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      toggle.setAttribute("aria-label", "Cambiar a modo claro");
+    }
+  }
+
+  let saved = "dark";
+  try {
+    saved = localStorage.getItem("theme") || "dark";
+  } catch (e) {}
+  apply(saved);
+
+  toggle.addEventListener("click", () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const next = isLight ? "dark" : "light";
+    apply(next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch (e) {}
+  });
+}
+
+/* ---------- Toasts ---------- */
+function showToast(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  const icon = document.createElement("div");
+  icon.className = "toast-icon";
+  icon.innerHTML =
+    type === "success"
+      ? '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 10L8 14L16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 6V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14" r="1" fill="currentColor"/></svg>';
+
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  toast.appendChild(icon);
+  toast.appendChild(text);
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("visible"));
+
+  setTimeout(() => {
+    toast.classList.remove("visible");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+/* ---------- Protección básica de código en el navegador ----------
+   Nota: esto NO es seguridad real (el código siempre es visible/descargable
+   por el navegador). Solo disuade la copia casual del contenido. */
+function initCodeProtection() {
+  document.addEventListener("contextmenu", (e) => {
+    const isFormField = e.target.closest("input, textarea, select");
+    if (!isFormField) e.preventDefault();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const key = e.key ? e.key.toLowerCase() : "";
+    const blockedCombo =
+      key === "f12" ||
+      (e.ctrlKey && e.shiftKey && ["i", "j", "c"].includes(key)) ||
+      (e.ctrlKey && key === "u");
+    if (blockedCombo) e.preventDefault();
+  });
+
+  console.log(
+    "%cAlto.",
+    "color:#ffb020; font-size:28px; font-weight:bold;"
+  );
+  console.log(
+    "%cSi alguien te pidió pegar código aquí para 'activar' algo o 'ayudarte', es una estafa (self-XSS). Cerrar esta ventana no afecta tu sesión.",
+    "color:#94a3b8; font-size:14px;"
+  );
+}
 
 /* ---------- Preloader ---------- */
 function initPreloader() {
@@ -577,6 +668,7 @@ function initContactForm() {
       "Se abrió tu cliente de correo. Completa el envío desde ahí.",
       true
     );
+    showToast("Se abrió tu cliente de correo con la solicitud lista.");
 
     setTimeout(() => {
       submitBtn.innerHTML = originalHTML;
@@ -607,6 +699,7 @@ function initContactForm() {
       window.open(url, "_blank", "noopener");
 
       showNote("Se abrió WhatsApp con tu mensaje listo para enviar.", true);
+      showToast("Se abrió WhatsApp con tu mensaje listo para enviar.");
       resetAfterSend();
     });
   }
@@ -802,6 +895,7 @@ function initQuoteBuilder() {
       "_blank",
       "noopener"
     );
+    showToast("Se abrió WhatsApp con tu cotización lista.");
   });
 
   renderSummary();
@@ -1000,6 +1094,7 @@ function initCCTVQuoteWizard() {
       "_blank",
       "noopener"
     );
+    showToast("Se abrió WhatsApp con tu cotización de CCTV lista.");
   });
 
   renderSizeOptions();
