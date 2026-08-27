@@ -17,3 +17,13 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Env
+.env
+.env.*
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
